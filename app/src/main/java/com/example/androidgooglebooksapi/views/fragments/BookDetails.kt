@@ -1,4 +1,4 @@
-package com.example.androidgooglebooksapi.fragments
+package com.example.androidgooglebooksapi.views.fragments
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -6,7 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 
-class BooksListFragment : Fragment() {
+class BookDetails : Fragment()  {
 
 
     override fun onCreateView(
@@ -15,15 +15,7 @@ class BooksListFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         return super.onCreateView(inflater, container, savedInstanceState)
-
-
-
-
-
-
     }
-
-
 
 
 
