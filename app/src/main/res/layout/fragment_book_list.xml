@@ -3,17 +3,21 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-             android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/background_color">
 
     <EditText
         android:id="@+id/edit_text_books_title"
+        style="@style/MobileInput"
         android:layout_width="0dp"
+
         android:layout_height="wrap_content"
-        android:background="@color/additional_1st"
+        android:layout_marginStart="3dp"
+        android:layout_marginEnd="3dp"
         android:ems="10"
+        android:hint="@string/search"
         android:inputType="textPersonName"
         android:minHeight="32dp"
-        android:text="Name"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -22,6 +26,9 @@
         android:id="@+id/recyclerview_books_list"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:layout_marginStart="3dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginEnd="3dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

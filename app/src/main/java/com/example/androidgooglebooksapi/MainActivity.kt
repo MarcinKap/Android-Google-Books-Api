@@ -1,14 +1,11 @@
 package com.example.androidgooglebooksapi
 
-import android.graphics.Bitmap
-import android.graphics.drawable.Drawable
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Toast
-import com.example.androidgooglebooksapi.views.fragments.BooksListFragment
+import com.example.androidgooglebooksapi.views.bookList.BooksListFragment
 import com.example.androidgooglebooksapi.models.bookList.BookList
 import com.example.androidgooglebooksapi.api.RetrofitInstance
-import com.squareup.picasso.Picasso
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -26,8 +23,14 @@ class MainActivity : AppCompatActivity() {
 
     private fun addFragment() {
 
-        val getBookList = RetrofitInstance.getApiRepository.getNews()
 
+//        supportFragmentManager.beginTransaction()
+//            .replace(
+//                R.id.container_fragment,
+//                BooksListFragment(null)
+//            )
+
+        val getBookList = RetrofitInstance.getApiRepository.getNews()
         getBookList.enqueue(object : Callback<BookList> {
             override fun onResponse(call: Call<BookList>, response: Response<BookList>) {
                 if (response.isSuccessful) {
@@ -41,7 +44,6 @@ class MainActivity : AppCompatActivity() {
             }
 
             override fun onFailure(call: Call<BookList>, t: Throwable) {
-
                 Toast.makeText(this@MainActivity, "Problem", Toast.LENGTH_SHORT).show()
             }
         }
