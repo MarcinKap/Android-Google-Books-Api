@@ -2,13 +2,13 @@ package com.example.androidgooglebooksapi
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.widget.Toast
+import android.os.PersistableBundle
+import android.widget.EditText
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
+import com.example.androidgooglebooksapi.models.bookList.Items
+import com.example.androidgooglebooksapi.views.bookDetails.BookDetailsFragment
 import com.example.androidgooglebooksapi.views.bookList.BooksListFragment
-import com.example.androidgooglebooksapi.models.bookList.BookList
-import com.example.androidgooglebooksapi.api.RetrofitInstance
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 
 
 class MainActivity : AppCompatActivity() {
@@ -17,79 +17,53 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        addFragment()
-
-    }
-
-    private fun addFragment() {
-
-
-//        supportFragmentManager.beginTransaction()
-//            .replace(
-//                R.id.container_fragment,
-//                BooksListFragment(null)
-//            )
-
-        val getBookList = RetrofitInstance.getApiRepository.getNews()
-        getBookList.enqueue(object : Callback<BookList> {
-            override fun onResponse(call: Call<BookList>, response: Response<BookList>) {
-                if (response.isSuccessful) {
-                    supportFragmentManager.beginTransaction()
-                        .replace(
-                            R.id.container_fragment,
-                            BooksListFragment(response.body())
-                        )
-                        .commit()
-                }
+        if (savedInstanceState != null) {
+            if("booksListFragment".equals(savedInstanceState.getString("currentFragment"))){
+                savedInstanceState.getString("booksTitle")?.let { addBookListFragment(it) }
+            }else if("booksDetailsFragment".equals(savedInstanceState.getString("currentFragment"))){
+                addBookDetailsFragment(savedInstanceState.getSerializable("singleBook") as Items)
             }
-
-            override fun onFailure(call: Call<BookList>, t: Throwable) {
-                Toast.makeText(this@MainActivity, "Problem", Toast.LENGTH_SHORT).show()
-            }
+        }else{
+            addBookListFragment()
         }
+    }
 
-        )
+    private fun addBookListFragment() {
+        supportFragmentManager.beginTransaction()
+            .replace(
+                R.id.container_fragment,
+                BooksListFragment.newInstance()
+            )
+            .commit()
+    }
 
+    private fun addBookListFragment(searchingValue : String) {
+        supportFragmentManager.beginTransaction()
+            .replace(
+                R.id.container_fragment,
+                BooksListFragment.newInstance(searchingValue)
+            )
+            .commit()
+    }
 
+    private fun addBookDetailsFragment(items: Items) {
+        supportFragmentManager.beginTransaction()
+            .replace(
+                R.id.container_fragment,
+                BookDetailsFragment.newInstance(items)
+            )
+            .commit()
     }
 
 
-//
-////                    setGoneErrorTextViews();
-//        ApiUtils.getApiService()?.getNews()
-//            ?.subscribeOn(Schedulers.io())
-//            ?.observeOn(AndroidSchedulers.mainThread())
-//            ?.subscribe(object : DisposableObserver<Response<BookList?>?>() {
-//                override fun onNext(response: Response<BookList?>) {
-//                    if (ApiUtils.getResponseStatusCode(response) === 200) {
-//                        if (response.body() != null) {
-//
-//
-//
-//                        }
-//
-//
-//                        val intent = Intent(getActivity(), MainActivity::class.java)
-//                        startActivity(intent)
-//                        //Close Notification Drawer because after clicked it doesn't close
-//                        val closeIntent = Intent(Intent.ACTION_CLOSE_SYSTEM_DIALOGS)
-//                        context.sendBroadcast(closeIntent)
-//                        getActivity().finish()
-//                        //                                        newsService.saveNews(response.body());
-//                        // włączanie fragmentu z newsami
-//    //                                        runNewsFragment(response.body());
-//                    }
-//                }
-//
-//                override fun onError(e: Throwable) {
-//                    Log.e("API_CALL", e.message, e)
-//                }
-//
-//                override fun onComplete() {}
-//            })
-
-
-//
+    override fun onBackPressed() {
+        val fm: FragmentManager = supportFragmentManager
+        if (fm.getBackStackEntryCount() > 0) {
+            fm.popBackStack()
+        } else {
+            super.onBackPressed()
+        }
+    }
 
 
 }

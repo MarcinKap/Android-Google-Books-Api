@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="not_connected">Brak połączenia z internetem</string>
+    <string name="problem_with_download_data">Problem z pobraniem danych</string>
+    <string name="description">Opis</string>
+    <string name="search">Wyszukiwarka</string>
+    <string name="additional_informations">Dodatkowe informacje</string>
+    <string name="publisher">Wydawnictwo:</string>
+    <string name="published_on">Data wydania:</string>
+    <string name="pages">Ilość stron:</string>
+    <string name="author">Autor:</string>
+
+</resources>

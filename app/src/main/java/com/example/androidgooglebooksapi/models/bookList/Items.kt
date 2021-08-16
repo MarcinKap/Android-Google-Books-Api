@@ -1,5 +1,7 @@
 package com.example.androidgooglebooksapi.models.bookList
 
+import java.io.Serializable
+
 //Books
 data class Items (
 
@@ -10,4 +12,4 @@ data class Items (
 	val volumeInfo : VolumeInfo,
 	val saleInfo : SaleInfo,
 	val accessInfo : AccessInfo
-)
+) : Serializable
