@@ -26,7 +26,7 @@
                 app:layout_constraintGuide_percent="0.4" />
 
             <ImageView
-                android:id="@+id/image_view_book_details"
+                android:id="@+id/image_book"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="10dp"
@@ -40,7 +40,7 @@
                 app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
-                android:id="@+id/title_book_details"
+                android:id="@+id/book_title_text_view"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="10dp"

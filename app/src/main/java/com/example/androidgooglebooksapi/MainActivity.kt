@@ -3,12 +3,10 @@ package com.example.androidgooglebooksapi
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.PersistableBundle
-import android.widget.EditText
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import com.example.androidgooglebooksapi.models.bookList.Items
-import com.example.androidgooglebooksapi.views.bookDetails.BookDetailsFragment
-import com.example.androidgooglebooksapi.views.bookList.BooksListFragment
+import com.example.androidgooglebooksapi.views.fragments.BookDetailsFragment
+import com.example.androidgooglebooksapi.views.fragments.BooksListFragment
 
 
 class MainActivity : AppCompatActivity() {
@@ -41,7 +39,7 @@ class MainActivity : AppCompatActivity() {
         supportFragmentManager.beginTransaction()
             .replace(
                 R.id.container_fragment,
-                BooksListFragment.newInstance(searchingValue)
+                BooksListFragment.newInstance()
             )
             .commit()
     }
@@ -64,6 +62,5 @@ class MainActivity : AppCompatActivity() {
             super.onBackPressed()
         }
     }
-
 
 }

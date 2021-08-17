@@ -33,7 +33,7 @@
                 app:layout_constraintGuide_percent="0.25" />
 
             <ImageView
-                android:id="@+id/image_view_book_details"
+                android:id="@+id/image_book"
                 android:layout_width="0dp"
                 android:layout_height="200dp"
                 android:layout_marginTop="10dp"
@@ -44,7 +44,7 @@
                 app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
-                android:id="@+id/title_book_details"
+                android:id="@+id/book_title_text_view"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="10dp"
@@ -57,7 +57,7 @@
                 android:textStyle="bold"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/image_view_book_details" />
+                app:layout_constraintTop_toBottomOf="@+id/image_book" />
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/constraintLayout2"
@@ -69,7 +69,7 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/title_book_details">
+                app:layout_constraintTop_toBottomOf="@+id/book_title_text_view">
 
                 <TextView
                     android:id="@+id/book_details_description_header"

@@ -1,4 +1,4 @@
-package com.example.androidgooglebooksapi.views.bookDetails
+package com.example.androidgooglebooksapi.views.adapters
 
 import android.view.LayoutInflater
 import android.view.View

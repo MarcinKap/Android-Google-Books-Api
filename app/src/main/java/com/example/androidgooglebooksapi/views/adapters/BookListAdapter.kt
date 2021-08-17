@@ -1,6 +1,7 @@
-package com.example.androidgooglebooksapi.views.bookList
+package com.example.androidgooglebooksapi.views.adapters
 
 
+import android.graphics.PointF
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,24 +12,27 @@ import com.example.androidgooglebooksapi.R
 import com.example.androidgooglebooksapi.models.bookList.Items
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.cardview.widget.CardView
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.view.ViewCompat
 import androidx.core.view.updateLayoutParams
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentTransaction
 import com.bumptech.glide.Glide
-import com.example.androidgooglebooksapi.views.bookDetails.BookDetailsFragment
-import com.google.android.material.transition.MaterialFadeThrough
+import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.bumptech.glide.load.resource.bitmap.CenterCrop
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
+import com.example.androidgooglebooksapi.views.fragments.BookDetailsFragment
+import jp.wasabeef.glide.transformations.BlurTransformation
+import jp.wasabeef.glide.transformations.gpu.ContrastFilterTransformation
+import jp.wasabeef.glide.transformations.gpu.VignetteFilterTransformation
 
 
 class BookListAdapter(var booksList: List<Items>) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
-    val VIEW_TYPE_SECTION: Int = 0
-    val VIEW_TYPE_ITEM = 1
-
-    var freeBooksList: ArrayList<Items> = ArrayList()
-    var paidBooksList: ArrayList<Items> = ArrayList()
-
+    private val VIEW_TYPE_SECTION: Int = 0
+    private val VIEW_TYPE_ITEM = 1
+    private var freeBooksList: ArrayList<Items> = ArrayList()
+    private var paidBooksList: ArrayList<Items> = ArrayList()
 
     init {
         booksList.forEach {
@@ -41,10 +45,8 @@ class BookListAdapter(var booksList: List<Items>) :
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-
-
-
         val inflater = LayoutInflater.from(parent.context)
+
 
         if (viewType == 0) { //Create section with title (Free/Paid books)
             val view: View = inflater.inflate(R.layout.adapter_section_book, parent, false)
@@ -100,7 +102,6 @@ class BookListAdapter(var booksList: List<Items>) :
         } else {
             return 1; //Item
         }
-//
 //        return super.getItemViewType(position)
     }
 
@@ -110,7 +111,6 @@ class BookListAdapter(var booksList: List<Items>) :
             var sectionTitle: TextView = itemView.findViewById(R.id.sectionTitle)
             sectionTitle.setText(title)
         }
-
     }
 
     class SingleBookViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -120,10 +120,10 @@ class BookListAdapter(var booksList: List<Items>) :
         fun bind(singleBook: Items) {
             var bookImage: ImageView = itemView.findViewById(R.id.image_book)
             val bookTitle: TextView = itemView.findViewById(R.id.book_title_text_view)
-            val bookContainer: ConstraintLayout = itemView.findViewById(R.id.single_book)
+            val bookContainer: CardView = itemView.findViewById(R.id.single_book)
 
-            //Set book title
-            bookTitle.setText(singleBook.volumeInfo.title)
+            ViewCompat.setTransitionName(bookImage, "item_image")
+
 
             //Download image
             if (singleBook.volumeInfo != null && singleBook.volumeInfo.imageLinks != null && singleBook.volumeInfo.imageLinks.thumbnail != null) {
@@ -138,6 +138,9 @@ class BookListAdapter(var booksList: List<Items>) :
                     .fitCenter()
                     .into(bookImage);
                 bookImage.invalidate()
+                //Set book title
+                bookTitle.setText(singleBook.volumeInfo.title)
+
 
             } else {
                 bookImage.setImageDrawable(null)
@@ -146,10 +149,13 @@ class BookListAdapter(var booksList: List<Items>) :
                 bookImage.layoutParams.width = ViewGroup.LayoutParams.WRAP_CONTENT;
 
                 bookImage.updateLayoutParams<ConstraintLayout.LayoutParams> { verticalBias = 0.5f }
+                //Set book title
+                bookTitle.setText(singleBook.volumeInfo.title)
+
             }
 
 
-            val customListener : CustomListener = CustomListener(singleBook)
+            val customListener: CustomListener = CustomListener(singleBook, bookImage)
 
             //Set on clicklistener to open details
             bookContainer.setOnClickListener(
@@ -166,18 +172,23 @@ class BookListAdapter(var booksList: List<Items>) :
     /**
      * Empty constructor
      */
-    internal constructor(item : Items) : View.OnClickListener {
+    internal constructor(item: Items, bookImage: ImageView) : View.OnClickListener {
 
         var singleBook = item
+        var bookImage = bookImage
 
         override fun onClick(v: View) {
 
 
             (v.context as AppCompatActivity).supportFragmentManager
-                .beginTransaction().replace(
+                .beginTransaction()
+                .setReorderingAllowed(true)
+                .addSharedElement(bookImage, "hero_image")
+                .replace(
                     R.id.container_fragment,
                     BookDetailsFragment.newInstance(singleBook)
-                ).addToBackStack(null).commit()
+                )
+                .addToBackStack(null).commit()
 
 
         }
