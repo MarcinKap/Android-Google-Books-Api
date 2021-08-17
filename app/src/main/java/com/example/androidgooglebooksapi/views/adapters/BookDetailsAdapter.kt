@@ -16,19 +16,14 @@ class BookDetailsAdapter(var additionalInformationsList: ArrayList<AdditionalInf
         val view: View = inflater.inflate(R.layout.adapter_book_details, parent, false)
         return (CustomViewHolder(view))
     }
-
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val additionalInformation = additionalInformationsList.get(position)
         (holder as CustomViewHolder).bind(additionalInformation.title, additionalInformation.text)
     }
-
     override fun getItemCount(): Int {
         return additionalInformationsList.size
     }
-
-
     class CustomViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-
         //create section book list adapter
         fun bind(title: String, text: String) {
             val additionalInformationTitle: TextView =
@@ -38,7 +33,10 @@ class BookDetailsAdapter(var additionalInformationsList: ArrayList<AdditionalInf
                 itemView.findViewById(R.id.additional_information_text)
             additionalInformationText.setText(text)
         }
-
     }
+
+
+
+
 
 }

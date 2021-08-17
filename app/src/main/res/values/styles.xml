@@ -1,11 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
 
     <style name="AppTheme.NoActionBar" parent="Theme.AppCompat.Light.NoActionBar">
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/primary_navy_blue</item>
+
+        <item name="android:windowSharedElementEnterTransition">
+            @transition/shared_image
+        </item>
+        <item name="android:windowSharedElementExitTransition">
+            @transition/shared_image
+        </item>
+
+
     </style>
 
     <style name="MobileInput" parent="Widget.AppCompat.Button.Colored">

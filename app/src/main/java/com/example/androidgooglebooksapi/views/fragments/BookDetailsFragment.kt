@@ -3,6 +3,7 @@ package com.example.androidgooglebooksapi.views.fragments
 import android.content.res.Configuration
 import android.graphics.drawable.Drawable
 import android.os.Bundle
+import android.transition.Transition
 import android.transition.TransitionInflater
 import android.view.LayoutInflater
 import android.view.View
@@ -20,6 +21,7 @@ import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
+import com.example.androidgooglebooksapi.MainActivity
 import com.example.androidgooglebooksapi.R
 import com.example.androidgooglebooksapi.models.bookDetails.AdditionalInformation
 import com.example.androidgooglebooksapi.models.bookList.Items
@@ -27,9 +29,10 @@ import com.example.androidgooglebooksapi.views.adapters.BookDetailsAdapter
 
 class BookDetailsFragment : Fragment() {
 
-    companion object {
-        lateinit var singleBook: Items
+    lateinit var singleBook: Items
 
+
+    companion object {
         fun newInstance(item: Items): BookDetailsFragment {
             val args = Bundle()
             args.putSerializable("item", item)
@@ -57,19 +60,19 @@ class BookDetailsFragment : Fragment() {
         val textViewAdditionalInformationHeader: TextView =
             itemView.findViewById(R.id.book_details_additional_informations_header)
 
-        sharedElementEnterTransition = TransitionInflater.from(requireContext())
-            .inflateTransition(R.transition.shared_image)
         val bookImage: ImageView = itemView.findViewById(R.id.image_book)
-        ViewCompat.setTransitionName(bookImage, "hero_image")
-
-        postponeEnterTransition()
 
         textViewTitle.setText(singleBook.volumeInfo.title)
+        textViewTitle.transitionName = singleBook.volumeInfo.title
+        bookImage.transitionName = singleBook.toString()
+
+//        var transition: Transition =
+//            TransitionInflater.from(requireContext()).inflateTransition(R.transition.shared_image)
+//        sharedElementEnterTransition = transition
+//
+//        startPostponedEnterTransition()
+
         textViewAdditionalInformationHeader.setText(resources.getString(R.string.additional_informations))
-
-
-
-
 
         if (singleBook.volumeInfo.description != null) {
             textViewDescriptionHeader.setText(resources.getString(R.string.description))
@@ -78,53 +81,7 @@ class BookDetailsFragment : Fragment() {
             textViewDescriptionHeader.visibility = View.GONE
             textViewDescriptionText.visibility = View.GONE
         }
-
-
-        //Download image
-        if (singleBook.volumeInfo != null && singleBook.volumeInfo.imageLinks != null && singleBook.volumeInfo.imageLinks.smallThumbnail != null) {
-            Glide
-                .with(itemView)
-                .load(singleBook.volumeInfo.imageLinks.smallThumbnail)
-                .thumbnail(Glide.with(itemView.context).load(R.drawable.loading_apple))
-                .error(R.drawable.no_photo)
-                .fitCenter()
-                .listener(object : RequestListener<Drawable> {
-                    override fun onLoadFailed(
-                        e: GlideException?,
-                        model: Any?,
-                        target: Target<Drawable>?,
-                        isFirstResource: Boolean
-                    ): Boolean {
-                        startPostponedEnterTransition()
-                        return false
-                    }
-
-                    override fun onResourceReady(
-                        resource: Drawable?,
-                        model: Any?,
-                        target: Target<Drawable>?,
-                        dataSource: DataSource?,
-                        isFirstResource: Boolean
-                    ): Boolean {
-                        startPostponedEnterTransition()
-                        return false
-                    }
-                })
-
-                .into(bookImage);
-
-        } else {
-            bookImage.setImageDrawable(null)
-            bookImage.setBackgroundResource(R.drawable.no_photo)
-            bookImage.layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
-            bookImage.layoutParams.width = ViewGroup.LayoutParams.WRAP_CONTENT;
-
-            bookImage.updateLayoutParams<ConstraintLayout.LayoutParams> { verticalBias = 0.5f }
-        }
-
-
         val additionalInformationsList = ArrayList<AdditionalInformation>()
-
         if (singleBook.volumeInfo.authors != null)
             additionalInformationsList.add(
                 AdditionalInformation(
@@ -153,8 +110,57 @@ class BookDetailsFragment : Fragment() {
                     singleBook.volumeInfo.pageCount.toString()
                 )
             )
-
         recyclerView.adapter = BookDetailsAdapter(additionalInformationsList)
+
+
+
+
+
+
+        //Download image
+        if (singleBook.volumeInfo != null && singleBook.volumeInfo.imageLinks != null && singleBook.volumeInfo.imageLinks.smallThumbnail != null) {
+            Glide
+                .with(itemView)
+                .load(singleBook.volumeInfo.imageLinks.smallThumbnail)
+                .thumbnail(Glide.with(itemView.context).load(R.drawable.loading_apple))
+                .error(R.drawable.no_photo)
+                .fitCenter()
+                .listener(object : RequestListener<Drawable> {
+                    override fun onLoadFailed(
+                        e: GlideException?,
+                        model: Any?,
+                        target: Target<Drawable>?,
+                        isFirstResource: Boolean
+                    ): Boolean {
+
+                        parentFragment?.startPostponedEnterTransition()
+                        return false
+
+                    }
+
+                    override fun onResourceReady(
+                        resource: Drawable?,
+                        model: Any?,
+                        target: Target<Drawable>?,
+                        dataSource: DataSource?,
+                        isFirstResource: Boolean
+                    ): Boolean {
+                        parentFragment?.startPostponedEnterTransition()
+                        return false
+                    }
+                })
+
+                .into(bookImage);
+
+        } else {
+            bookImage.setImageDrawable(null)
+            bookImage.setBackgroundResource(R.drawable.no_photo)
+            bookImage.layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+            bookImage.layoutParams.width = ViewGroup.LayoutParams.WRAP_CONTENT;
+
+            bookImage.updateLayoutParams<ConstraintLayout.LayoutParams> { verticalBias = 0.5f }
+            parentFragment?.startPostponedEnterTransition()
+        }
 
         var spanCount = 1
         if (context?.resources?.configuration?.orientation == Configuration.ORIENTATION_LANDSCAPE) {
@@ -162,6 +168,8 @@ class BookDetailsFragment : Fragment() {
         }
 
         recyclerView.layoutManager = GridLayoutManager(context, spanCount)
+
+
 
         return itemView;
     }
