@@ -104,6 +104,7 @@
                     app:layout_constraintTop_toBottomOf="@+id/book_details_description" />
 
                 <androidx.recyclerview.widget.RecyclerView
+                    android:layoutAnimation="@anim/description_animation"
                     android:id="@+id/book_details_additional_informations_recycler_view"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"

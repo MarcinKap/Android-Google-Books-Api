@@ -65,6 +65,7 @@ class BooksListFragment() : BaseFragment() {
     ): View? {
         val view = inflater.inflate(R.layout.fragment_book_list, container, false)
 
+
         recyclerView = view.findViewById(R.id.recyclerview_books_list)
         setGridLayoutManagerInRecyclerView(recyclerView)
         editText = view.findViewById(R.id.edit_text_books_title);
@@ -91,14 +92,14 @@ class BooksListFragment() : BaseFragment() {
             recyclerView.adapter = BookListAdapter(it.items, this@BooksListFragment)
             setGridLayoutManagerInRecyclerView(recyclerView)
             setFreeAndPaidBookListSize(it.items)
-            scrollToPosition()
 
+            scrollToPosition()
 
             (view.parent as? ViewGroup)?.doOnPreDraw {
                 startPostponedEnterTransition()
-                if (MainActivity.currentPositionOnMainList == 0) {
-                    recyclerView.scheduleLayoutAnimation()
-                }
+//                if (MainActivity.currentPositionOnMainList == 0) {
+//                    recyclerView.scheduleLayoutAnimation()
+//                }
             }
         }
         if (recyclerView.adapter != null) {
@@ -240,6 +241,7 @@ class BooksListFragment() : BaseFragment() {
                 oldBottom: Int
             ) {
                 recyclerView.removeOnLayoutChangeListener(this)
+
                 recyclerView.scrollToPosition(MainActivity.currentPositionOnMainList)
             }
         })

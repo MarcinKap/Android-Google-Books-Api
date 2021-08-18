@@ -252,7 +252,7 @@ class BookListAdapter(var booksList: List<Items>, fragment: Fragment) :
 
             // Exclude the clicked card from the exit transition (e.g. the card will disappear immediately
             // instead of fading out with the rest to prevent an overlapping animation of fade and move).
-//            (fragment.exitTransition as TransitionSet?)!!.excludeTarget(view, true)
+            (fragment.exitTransition as TransitionSet?)!!.excludeTarget(view, true)
 
             val bookImage :ImageView = view!!.findViewById(R.id.image_book)
             val bookTitle :TextView = view!!.findViewById(R.id.book_title_text_view)

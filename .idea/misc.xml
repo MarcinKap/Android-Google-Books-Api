@@ -3,6 +3,8 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Users/marci/AndroidStudioProjects/Android-Google-Books-Api/app/src/main/res/layout-land/fragment_book_details.xml" value="0.1" />
+        <entry key="..\:/Users/marci/AndroidStudioProjects/Android-Google-Books-Api/app/src/main/res/layout/fragment_book_details.xml" value="0.1" />
         <entry key="..\:/Users/marci/AndroidStudioProjects/AndroidGoogleBooksAPI/app/src/main/res/drawable/input_field.xml" value="0.2703125" />
         <entry key="..\:/Users/marci/AndroidStudioProjects/AndroidGoogleBooksAPI/app/src/main/res/drawable/input_field_shape_before_click.xml" value="0.2703125" />
         <entry key="..\:/Users/marci/AndroidStudioProjects/AndroidGoogleBooksAPI/app/src/main/res/drawable/input_field_shape_on_click.xml" value="0.2703125" />
