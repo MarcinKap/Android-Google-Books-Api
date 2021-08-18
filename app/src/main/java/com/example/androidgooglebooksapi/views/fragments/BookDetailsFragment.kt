@@ -49,22 +49,22 @@ class BookDetailsFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         singleBook = arguments?.get("item") as Items
-
         val itemView = inflater.inflate(R.layout.fragment_book_details, container, false)
-        val recyclerView: RecyclerView =
-            itemView.findViewById(R.id.book_details_additional_informations_recycler_view)
         val textViewTitle: TextView = itemView.findViewById(R.id.book_title_text_view)
         val textViewDescriptionHeader: TextView =
             itemView.findViewById(R.id.book_details_description_header)
         val textViewDescriptionText: TextView = itemView.findViewById(R.id.book_details_description)
         val textViewAdditionalInformationHeader: TextView =
             itemView.findViewById(R.id.book_details_additional_informations_header)
-
         val bookImage: ImageView = itemView.findViewById(R.id.image_book)
 
         textViewTitle.setText(singleBook.volumeInfo.title)
-        textViewTitle.transitionName = singleBook.volumeInfo.title
-        bookImage.transitionName = singleBook.toString()
+        textViewTitle.transitionName = singleBook.etag+"title"
+        bookImage.transitionName = singleBook.etag
+
+
+        val recyclerView: RecyclerView =
+            itemView.findViewById(R.id.book_details_additional_informations_recycler_view)
 
 //        var transition: Transition =
 //            TransitionInflater.from(requireContext()).inflateTransition(R.transition.shared_image)
@@ -134,6 +134,8 @@ class BookDetailsFragment : Fragment() {
                     ): Boolean {
 
                         parentFragment?.startPostponedEnterTransition()
+
+
                         return false
 
                     }

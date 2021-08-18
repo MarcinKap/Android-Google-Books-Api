@@ -50,16 +50,43 @@ class BookPagerFragment : BaseFragment() {
 
         // Set the current position and add a listener that will update the selection coordinator when
         // paging the images.
-        MainActivity.currentPositionToShow =
-            getPosition(MainActivity.currentPositionOnList, freeBookList, paidBookList)
-        viewPager?.currentItem = MainActivity.currentPositionToShow
+        MainActivity.currentPositionToShowOnSmallList =
+            getPositionOnSmallList(
+                MainActivity.currentPositionOnMainList,
+                freeBookList,
+                paidBookList
+            )
+
+        viewPager!!.setCurrentItem(MainActivity.currentPositionToShowOnSmallList, false)
         viewPager?.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
-                MainActivity.currentPositionOnList = position
+                MainActivity.currentPositionToShowOnSmallList = position
+//                MainActivity.currentPositionToShowOnSmallList =
+//                    getPositionOnSmallList(MainActivity.currentPositionOnMainList, freeBookList, paidBookList)
+//                prepareSharedElementTransition()
                 super.onPageSelected(position)
+
+
+            }
+
+            override fun onPageScrolled(
+                position: Int,
+                positionOffset: Float,
+                positionOffsetPixels: Int
+            ) {
+                MainActivity.currentPositionToShowOnSmallList = position
+                MainActivity.currentPositionOnMainList = getPositionOnMainList(
+                    MainActivity.currentPositionToShowOnSmallList,
+                    freeBookList,
+                    paidBookList
+                )
+                prepareSharedElementTransition()
+                if (savedInstanceState == null) {
+                    postponeEnterTransition()
+                }
+                super.onPageScrolled(position, positionOffset, positionOffsetPixels)
             }
         })
-
         prepareSharedElementTransition()
 
         // Avoid a postponeEnterTransition on orientation change, and postpone only of first creation.
@@ -69,12 +96,12 @@ class BookPagerFragment : BaseFragment() {
         return viewPager
     }
 
-    fun getPosition(
+    fun getPositionOnSmallList(
         position: Int,
         freeBooksList: ArrayList<Items>,
         paidBookList: ArrayList<Items>
     ): Int {
-        if (position <= freeBooksList.size && freeBooksList.size != 0 || paidBookList.size ==0) {
+        if (position <= freeBooksList.size && freeBooksList.size != 0) {
             return position - 1
         } else if (position >= freeBooksList.size + 1 && freeBooksList.size != 0) {
             return position - 2
@@ -82,6 +109,22 @@ class BookPagerFragment : BaseFragment() {
             return position - 1
         }
     }
+
+    fun getPositionOnMainList(
+        positionOnSmallList: Int,
+        freeBooksList: ArrayList<Items>,
+        paidBookList: ArrayList<Items>
+    ): Int {
+
+        if (positionOnSmallList < freeBooksList.size && freeBooksList.size != 0) {
+            return positionOnSmallList + 1
+        } else if (positionOnSmallList >= freeBooksList.size && freeBooksList.size != 0) {
+            return positionOnSmallList + 2
+        } else {
+            return positionOnSmallList + 1
+        }
+    }
+
 
     /**
      * Prepares the shared element transition from and back to the grid fragment.
@@ -107,7 +150,7 @@ class BookPagerFragment : BaseFragment() {
 
                     val currentFragment: Fragment? =
                         (view?.context as AppCompatActivity).supportFragmentManager.findFragmentById(
-                            MainActivity.currentPositionOnList
+                            MainActivity.currentPositionOnMainList
                         )
                     val view2: View? = currentFragment?.view
                     if (view2 == null) {

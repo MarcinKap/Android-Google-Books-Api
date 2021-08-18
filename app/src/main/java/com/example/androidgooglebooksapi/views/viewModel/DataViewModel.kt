@@ -1,17 +1,20 @@
 package com.example.androidgooglebooksapi.views.viewModel
 
-import android.app.Application
-import android.content.Intent
-import android.content.pm.PackageManager
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
 import com.example.androidgooglebooksapi.models.bookList.BookList
 
-class viewModel (application: Application) : AndroidViewModel(application) {
+
+class DataViewModel : ViewModel() {
 
     private val _data = MutableLiveData<BookList>()
     val data: LiveData<BookList> = _data
+
+
+    fun setData(bookList: BookList?) {
+        _data.value = bookList
+    }
 
 //    init {
 //        val packageManager = getApplication<Application>().packageManager

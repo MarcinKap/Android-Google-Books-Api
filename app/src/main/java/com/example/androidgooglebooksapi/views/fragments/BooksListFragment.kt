@@ -30,18 +30,25 @@ import android.os.Build
 import android.transition.TransitionInflater
 import android.widget.Toast
 import androidx.core.app.SharedElementCallback
+import androidx.core.view.doOnPreDraw
+import androidx.fragment.app.activityViewModels
 import com.example.androidgooglebooksapi.MainActivity
 import com.example.androidgooglebooksapi.views.adapters.BookListAdapter
+import com.example.androidgooglebooksapi.views.viewModel.DataViewModel
 import kotlinx.android.synthetic.main.activity_main.*
+
 
 class BooksListFragment() : BaseFragment() {
 
-//    var freeBookListSize: Int = 0
+    private val viewModel: DataViewModel by activityViewModels()
+
+    //    var freeBookListSize: Int = 0
 //    var paidBookListSize: Int = 0
     private var freeBookListSize: Int = 0
     private var paidBookListSize: Int = 0
     private lateinit var editText: EditText
     private lateinit var recyclerView: RecyclerView
+
 
     companion object {
         fun newInstance(): BooksListFragment {
@@ -60,17 +67,10 @@ class BooksListFragment() : BaseFragment() {
 
         recyclerView = view.findViewById(R.id.recyclerview_books_list)
         editText = view.findViewById(R.id.edit_text_books_title);
-
         setAdapter(editText)
         setGridLayoutManagerInRecyclerView(recyclerView)
-
-
         exitTransition = TransitionInflater.from(context)
             .inflateTransition(R.transition.image_shared_element_transition)
-        if(recyclerView.adapter!=null){
-            prepareTransitions()
-            postponeEnterTransition()
-        }
 
 
         return view;
@@ -78,12 +78,30 @@ class BooksListFragment() : BaseFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        scrollToPosition()
+
+        postponeEnterTransition()
+
+        viewModel.data.observe(viewLifecycleOwner) {
+            recyclerView.adapter = BookListAdapter(it.items, this@BooksListFragment)
+            scrollToPosition()
+
+
+            (view.parent as? ViewGroup)?.doOnPreDraw {
+                startPostponedEnterTransition()
+                if (MainActivity.currentPositionOnMainList == 0) {
+                    recyclerView.scheduleLayoutAnimation()
+                }
+            }
+        }
+        if (recyclerView.adapter != null) {
+            prepareTransitions()
+            postponeEnterTransition()
+        }
+
     }
 
 
-
-    fun setAdapter( editText: EditText) {
+    fun setAdapter(editText: EditText) {
         var timer = Timer()
         val DELAY: Long = 1000 // Milliseconds
 
@@ -92,12 +110,15 @@ class BooksListFragment() : BaseFragment() {
             }
 
             override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-//                if (editText.hasFocus()) {
-                timer.cancel()
+                if (editText.hasFocus()) {
+                    timer.cancel()
                     timer = Timer()
                     timer.schedule(
                         object : TimerTask() {
                             override fun run() {
+                                MainActivity.currentPositionOnMainList = 0
+                                MainActivity.currentPositionToShowOnSmallList = 0
+
                                 RetrofitInstance.getApiRepository.getBookList(editText.text.toString())
                                     .enqueue(object : Callback<BookList> {
                                         override fun onResponse(
@@ -110,15 +131,16 @@ class BooksListFragment() : BaseFragment() {
                                                         ?.let { setFreeAndPaidBookListSize(it.items) }
                                                     setGridLayoutManagerInRecyclerView(recyclerView)
 
-                                                    recyclerView.adapter =
-                                                        response.body()
-                                                            ?.let { BookListAdapter(it.items, this@BooksListFragment) }
-                                                    recyclerView.scheduleLayoutAnimation()
+
+                                                    viewModel.setData(response.body()!!)
+//                                                    recyclerView.scheduleLayoutAnimation()
                                                 } else {
+//                                                    viewModel.setData(null)
                                                     recyclerView.adapter = null
                                                 }
                                             }
                                         }
+
                                         override fun onFailure(call: Call<BookList>, t: Throwable) {
                                             if (!isNetworkAvailable(view!!.context)) {
                                                 Toast.makeText(
@@ -142,13 +164,13 @@ class BooksListFragment() : BaseFragment() {
                         },
                         DELAY
                     )
-//                }
+                }
             }
+
             override fun afterTextChanged(p0: Editable?) {
             }
         })
     }
-
     fun isNetworkAvailable(context: Context?): Boolean {
         if (context == null) return false
         val connectivityManager =
@@ -199,7 +221,6 @@ class BooksListFragment() : BaseFragment() {
     }
 
 
-
     /**
      * Scrolls the recycler view to show the last viewed item in the grid. This is important when
      * navigating back from the grid.
@@ -219,15 +240,9 @@ class BooksListFragment() : BaseFragment() {
             ) {
                 recyclerView.removeOnLayoutChangeListener(this)
                 val layoutManager: RecyclerView.LayoutManager? = recyclerView.getLayoutManager()
-                val viewAtPosition = layoutManager?.findViewByPosition(MainActivity.currentPositionToShow)
-                // Scroll to position if the view for the current position is null (not currently part of
-                // layout manager children), or it's not completely visible.
-
-                if (viewAtPosition == null || layoutManager
-                        .isViewPartiallyVisible(viewAtPosition, false, true)
-                ) {
-                    recyclerView.post(Runnable { layoutManager?.scrollToPosition(MainActivity.currentPositionOnList) })
-                }
+                val viewAtPosition =
+                    layoutManager?.findViewByPosition(MainActivity.currentPositionOnMainList)
+                layoutManager?.scrollToPosition(MainActivity.currentPositionOnMainList)
             }
         })
     }
@@ -238,8 +253,6 @@ class BooksListFragment() : BaseFragment() {
      */
     private fun prepareTransitions() {
 
-
-        // A similar mapping is set at the ImagePagerFragment with a setEnterSharedElementCallback.
         setExitSharedElementCallback(
             object : SharedElementCallback() {
                 override fun onMapSharedElements(
@@ -248,7 +261,8 @@ class BooksListFragment() : BaseFragment() {
                 ) {
                     // Locate the ViewHolder for the clicked position.
                     val selectedViewHolder = recyclerView
-                        .findViewHolderForAdapterPosition(MainActivity.currentPositionToShow) ?: return
+                        .findViewHolderForAdapterPosition(MainActivity.currentPositionOnMainList)
+                        ?: return
 
 
                     // Map the first shared element name to the child ImageView.
@@ -257,8 +271,6 @@ class BooksListFragment() : BaseFragment() {
                 }
             })
     }
-
-
 
 
     fun setFreeAndPaidBookListSize(itemsList: ArrayList<Items>) {

@@ -7,13 +7,12 @@ import androidx.fragment.app.FragmentManager
 import com.example.androidgooglebooksapi.models.bookList.Items
 import com.example.androidgooglebooksapi.views.fragments.BookDetailsFragment
 import com.example.androidgooglebooksapi.views.fragments.BooksListFragment
-import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
 
     companion object{
-        var currentPositionOnList = 1
-        var currentPositionToShow= 1
+        var currentPositionOnMainList = 0
+        var currentPositionToShowOnSmallList= 0
     }
 
 
@@ -23,9 +22,9 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         if (savedInstanceState != null) {
-            MainActivity.currentPositionOnList =
+            MainActivity.currentPositionOnMainList =
                 savedInstanceState.getInt("currentPositionOnList", 0)
-            MainActivity.currentPositionToShow =
+            MainActivity.currentPositionToShowOnSmallList =
                 savedInstanceState.getInt("currentPositionToShow", 0)
 
             if("booksListFragment".equals(savedInstanceState.getString("currentFragment"))){
@@ -77,7 +76,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onSaveInstanceState(outState: Bundle, outPersistentState: PersistableBundle) {
         super.onSaveInstanceState(outState, outPersistentState)
-        outState.putInt("currentPositionToShow", currentPositionToShow)
-        outState.putInt("currentPositionOnList", currentPositionOnList)
+        outState.putInt("currentPositionToShowOnSmallList", currentPositionToShowOnSmallList)
+        outState.putInt("currentPositionOnMainList", currentPositionOnMainList)
     }
 }

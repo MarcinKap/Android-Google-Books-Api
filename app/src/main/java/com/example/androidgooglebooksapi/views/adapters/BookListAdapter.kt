@@ -1,7 +1,6 @@
 package com.example.androidgooglebooksapi.views.adapters
 
 import android.graphics.drawable.Drawable
-import android.transition.TransitionInflater
 import android.transition.TransitionSet
 import android.view.LayoutInflater
 import android.view.View
@@ -14,10 +13,8 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.cardview.widget.CardView
 import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.core.view.ViewCompat
 import androidx.core.view.updateLayoutParams
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentTransaction
 import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestManager
 import com.bumptech.glide.load.DataSource
@@ -25,10 +22,8 @@ import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
 import com.example.androidgooglebooksapi.MainActivity
-import com.example.androidgooglebooksapi.views.fragments.BookDetailsFragment
 import com.example.androidgooglebooksapi.views.fragments.BookPagerFragment
 import java.util.concurrent.atomic.AtomicBoolean
-import javax.inject.Inject
 
 class BookListAdapter(var booksList: List<Items>, fragment: Fragment) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
@@ -41,12 +36,7 @@ class BookListAdapter(var booksList: List<Items>, fragment: Fragment) :
     private var newItemsList: ArrayList<Items> = ArrayList()
     private var viewHolderListener: ViewHolderListener? = null
 
-
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        newItemsList.addAll(freeBooksList)
-        newItemsList.addAll(paidBooksList)
-
+    init{
         booksList.forEach {
             if ("FREE".equals(it.saleInfo.saleability)) {
                 freeBooksList.add(it)
@@ -54,6 +44,14 @@ class BookListAdapter(var booksList: List<Items>, fragment: Fragment) :
                 paidBooksList.add(it)
             }
         }
+        newItemsList.addAll(freeBooksList)
+        newItemsList.addAll(paidBooksList)
+    }
+
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+
+
         viewHolderListener = ViewHolderListenerImpl(fragment, newItemsList, freeBooksList, paidBooksList)
 
 
@@ -153,8 +151,8 @@ class BookListAdapter(var booksList: List<Items>, fragment: Fragment) :
         ) {
 //            bookImage.transitionName = java.lang.String.valueOf(singleBook)
             bookTitle.setText(singleBook.volumeInfo.title)
-            bookTitle.transitionName = singleBook.volumeInfo.title
-            bookImage.transitionName = singleBook.toString()
+            bookTitle.transitionName = singleBook.etag+"title"
+            bookImage.transitionName = singleBook.etag
             setImage(singleBook)
 
             bookContainer.setOnClickListener(object : View.OnClickListener {
@@ -241,7 +239,7 @@ class BookListAdapter(var booksList: List<Items>, fragment: Fragment) :
         override fun onLoadCompleted(view: ImageView?, adapterPosition: Int) {
 
             // Call startPostponedEnterTransition only when the 'selected' image loading is completed.
-            if (MainActivity.currentPositionOnList != adapterPosition) {
+            if (MainActivity.currentPositionOnMainList != adapterPosition) {
                 return
             }
             if (enterTransitionStarted.getAndSet(true)) {
@@ -252,7 +250,7 @@ class BookListAdapter(var booksList: List<Items>, fragment: Fragment) :
 
         override fun onItemClicked(view: View?, adapterPosition: Int) {
             // Update the position.
-            MainActivity.currentPositionOnList = adapterPosition
+            MainActivity.currentPositionOnMainList = adapterPosition
 
             // Exclude the clicked card from the exit transition (e.g. the card will disappear immediately
             // instead of fading out with the rest to prevent an overlapping animation of fade and move).
@@ -260,9 +258,6 @@ class BookListAdapter(var booksList: List<Items>, fragment: Fragment) :
 
             val bookImage :ImageView = view!!.findViewById(R.id.image_book)
             val bookTitle :TextView = view!!.findViewById(R.id.book_title_text_view)
-
-
-            println("trans name: " + bookImage.transitionName)
 
             (fragment.view?.context as AppCompatActivity).supportFragmentManager
                 .beginTransaction()
