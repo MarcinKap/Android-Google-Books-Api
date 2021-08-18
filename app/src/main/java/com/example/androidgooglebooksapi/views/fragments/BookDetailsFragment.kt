@@ -29,7 +29,7 @@ import com.example.androidgooglebooksapi.views.adapters.BookDetailsAdapter
 
 class BookDetailsFragment : Fragment() {
 
-    lateinit var singleBook: Items
+    private lateinit var singleBook: Items
 
 
     companion object {
