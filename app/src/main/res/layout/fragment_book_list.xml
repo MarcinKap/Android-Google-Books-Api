@@ -24,10 +24,13 @@
         app:startIconDrawable="@drawable/ic_search_black_24dp"
         android:background="@color/disabled_1st"
         android:layoutAnimation="@anim/animation"
+        android:focusableInTouchMode="true"
+        android:focusable="true"
         >
 
 
         <com.google.android.material.textfield.TextInputEditText
+
             android:id="@+id/edit_text_books_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
