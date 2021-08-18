@@ -12,4 +12,7 @@
     <string name="pages">Pages:</string>
     <string name="author">Author:</string>
 
+    <string name="paid_book_list">Paid book list</string>
+    <string name="free_book_list">Free book list</string>
+
 </resources>

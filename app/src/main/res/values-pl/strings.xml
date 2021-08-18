@@ -10,5 +10,7 @@
     <string name="published_on">Data wydania:</string>
     <string name="pages">Ilość stron:</string>
     <string name="author">Autor:</string>
+    <string name="paid_book_list">Płatne pozycje</string>
+    <string name="free_book_list">Darmowe pozycje</string>
 
 </resources>

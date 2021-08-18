@@ -51,16 +51,14 @@ class BookListAdapter(var booksList: List<Items>, fragment: Fragment) :
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
 
-
         viewHolderListener = ViewHolderListenerImpl(fragment, newItemsList, freeBooksList, paidBooksList)
-
 
         val inflater = LayoutInflater.from(parent.context)
 
         if (viewType == 0) { //Create section with title (Free/Paid books)
             val view: View = inflater.inflate(R.layout.adapter_section_book, parent, false)
             return BookSectionViewHolder(view)
-        } else { //Create item with book
+        } else { //Create section with book
             val view: View = inflater.inflate(R.layout.adapter_single_book, parent, false)
             return SingleBookViewHolder(
                 view,
@@ -74,9 +72,9 @@ class BookListAdapter(var booksList: List<Items>, fragment: Fragment) :
         //Now check wich ViewHolder should be run
         if (holder.itemViewType == VIEW_TYPE_SECTION) {
             if (position < freeBooksList.size + 1 && freeBooksList.size != 0) {
-                (holder as BookSectionViewHolder).bind("Free book list")
+                fragment.context?.resources?.let { (holder as BookSectionViewHolder).bind(it.getString(R.string.free_book_list)) }
             } else {
-                (holder as BookSectionViewHolder).bind("Paid book list")
+                fragment.context?.resources?.let { (holder as BookSectionViewHolder).bind(it.getString(R.string.paid_book_list)) }
             }
         } else {
             var singleBook = getSingleBook(position)
