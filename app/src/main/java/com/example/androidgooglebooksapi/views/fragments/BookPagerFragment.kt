@@ -5,6 +5,7 @@ import android.transition.TransitionInflater
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.SharedElementCallback
 import androidx.fragment.app.Fragment
@@ -60,34 +61,20 @@ class BookPagerFragment : BaseFragment() {
         viewPager!!.setCurrentItem(MainActivity.currentPositionToShowOnSmallList, false)
         viewPager?.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
-                MainActivity.currentPositionToShowOnSmallList = position
-//                MainActivity.currentPositionToShowOnSmallList =
-//                    getPositionOnSmallList(MainActivity.currentPositionOnMainList, freeBookList, paidBookList)
-//                prepareSharedElementTransition()
-                super.onPageSelected(position)
 
-
-            }
-
-            override fun onPageScrolled(
-                position: Int,
-                positionOffset: Float,
-                positionOffsetPixels: Int
-            ) {
                 MainActivity.currentPositionToShowOnSmallList = position
                 MainActivity.currentPositionOnMainList = getPositionOnMainList(
                     MainActivity.currentPositionToShowOnSmallList,
                     freeBookList,
                     paidBookList
                 )
-                prepareSharedElementTransition()
-                if (savedInstanceState == null) {
-                    postponeEnterTransition()
-                }
-                super.onPageScrolled(position, positionOffset, positionOffsetPixels)
+
+
+
+                super.onPageSelected(position)
             }
         })
-        prepareSharedElementTransition()
+        prepareEnterSharedElementTransition()
 
         // Avoid a postponeEnterTransition on orientation change, and postpone only of first creation.
         if (savedInstanceState == null) {
@@ -125,11 +112,10 @@ class BookPagerFragment : BaseFragment() {
         }
     }
 
-
     /**
      * Prepares the shared element transition from and back to the grid fragment.
      */
-    private fun prepareSharedElementTransition() {
+    private fun prepareEnterSharedElementTransition() {
         val transition = TransitionInflater
             .from(context)
             .inflateTransition(R.transition.image_shared_element_transition)
@@ -157,12 +143,14 @@ class BookPagerFragment : BaseFragment() {
                         return;
                     }
 
-                    // Map the first shared element name to the child ImageView.
-//                    sharedElements[names[0]] = view2.findViewById(R.id.image_book)!!
-                    sharedElements[names[0]] = view2.findViewById(R.id.image_book)!!
+                    val image : ImageView = view2.findViewById(R.id.image_book)
+                    sharedElements[names[0]] = image
                 }
             })
     }
+
+
+
 
 
 }

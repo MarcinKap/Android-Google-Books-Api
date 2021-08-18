@@ -270,7 +270,6 @@ class BookListAdapter(var booksList: List<Items>, fragment: Fragment) :
                 )
                 .addToBackStack(null)
                 .commit()
-//            ,BookPagerFragment::class.java.getSimpleName()
 
         }
 

@@ -65,13 +65,6 @@ class BookDetailsFragment : Fragment() {
 
         val recyclerView: RecyclerView =
             itemView.findViewById(R.id.book_details_additional_informations_recycler_view)
-
-//        var transition: Transition =
-//            TransitionInflater.from(requireContext()).inflateTransition(R.transition.shared_image)
-//        sharedElementEnterTransition = transition
-//
-//        startPostponedEnterTransition()
-
         textViewAdditionalInformationHeader.setText(resources.getString(R.string.additional_informations))
 
         if (singleBook.volumeInfo.description != null) {
@@ -112,11 +105,6 @@ class BookDetailsFragment : Fragment() {
             )
         recyclerView.adapter = BookDetailsAdapter(additionalInformationsList)
 
-
-
-
-
-
         //Download image
         if (singleBook.volumeInfo != null && singleBook.volumeInfo.imageLinks != null && singleBook.volumeInfo.imageLinks.smallThumbnail != null) {
             Glide
@@ -134,8 +122,6 @@ class BookDetailsFragment : Fragment() {
                     ): Boolean {
 
                         parentFragment?.startPostponedEnterTransition()
-
-
                         return false
 
                     }
@@ -159,7 +145,6 @@ class BookDetailsFragment : Fragment() {
             bookImage.setBackgroundResource(R.drawable.no_photo)
             bookImage.layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
             bookImage.layoutParams.width = ViewGroup.LayoutParams.WRAP_CONTENT;
-
             bookImage.updateLayoutParams<ConstraintLayout.LayoutParams> { verticalBias = 0.5f }
             parentFragment?.startPostponedEnterTransition()
         }

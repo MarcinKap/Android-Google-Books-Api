@@ -66,9 +66,14 @@ class BooksListFragment() : BaseFragment() {
         val view = inflater.inflate(R.layout.fragment_book_list, container, false)
 
         recyclerView = view.findViewById(R.id.recyclerview_books_list)
+        setGridLayoutManagerInRecyclerView(recyclerView)
         editText = view.findViewById(R.id.edit_text_books_title);
         setAdapter(editText)
-        setGridLayoutManagerInRecyclerView(recyclerView)
+
+        prepareTransitions()
+        postponeEnterTransition()
+
+//        setGridLayoutManagerInRecyclerView(recyclerView)
         exitTransition = TransitionInflater.from(context)
             .inflateTransition(R.transition.image_shared_element_transition)
 
@@ -81,8 +86,11 @@ class BooksListFragment() : BaseFragment() {
 
         postponeEnterTransition()
 
+
         viewModel.data.observe(viewLifecycleOwner) {
             recyclerView.adapter = BookListAdapter(it.items, this@BooksListFragment)
+            setGridLayoutManagerInRecyclerView(recyclerView)
+            setFreeAndPaidBookListSize(it.items)
             scrollToPosition()
 
 
@@ -94,7 +102,7 @@ class BooksListFragment() : BaseFragment() {
             }
         }
         if (recyclerView.adapter != null) {
-            prepareTransitions()
+//            prepareTransitions()
             postponeEnterTransition()
         }
 
@@ -127,15 +135,8 @@ class BooksListFragment() : BaseFragment() {
                                         ) {
                                             if (response.isSuccessful) {
                                                 if (response.body()?.items != null) {
-                                                    response.body()
-                                                        ?.let { setFreeAndPaidBookListSize(it.items) }
-                                                    setGridLayoutManagerInRecyclerView(recyclerView)
-
-
                                                     viewModel.setData(response.body()!!)
-//                                                    recyclerView.scheduleLayoutAnimation()
                                                 } else {
-//                                                    viewModel.setData(null)
                                                     recyclerView.adapter = null
                                                 }
                                             }
@@ -239,10 +240,7 @@ class BooksListFragment() : BaseFragment() {
                 oldBottom: Int
             ) {
                 recyclerView.removeOnLayoutChangeListener(this)
-                val layoutManager: RecyclerView.LayoutManager? = recyclerView.getLayoutManager()
-                val viewAtPosition =
-                    layoutManager?.findViewByPosition(MainActivity.currentPositionOnMainList)
-                layoutManager?.scrollToPosition(MainActivity.currentPositionOnMainList)
+                recyclerView.scrollToPosition(MainActivity.currentPositionOnMainList)
             }
         })
     }
@@ -252,6 +250,9 @@ class BooksListFragment() : BaseFragment() {
      * that affect the flow.
      */
     private fun prepareTransitions() {
+        exitTransition = TransitionInflater.from(context)
+            .inflateTransition(R.transition.grid_exit_transition)
+
 
         setExitSharedElementCallback(
             object : SharedElementCallback() {
@@ -266,8 +267,7 @@ class BooksListFragment() : BaseFragment() {
 
 
                     // Map the first shared element name to the child ImageView.
-                    sharedElements[names[0]] =
-                        selectedViewHolder.itemView.findViewById(R.id.image_book)
+                 sharedElements.put(names[0], selectedViewHolder.itemView.findViewById(R.id.image_book) )
                 }
             })
     }
