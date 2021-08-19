@@ -22,14 +22,14 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         if (savedInstanceState != null) {
-            MainActivity.currentPositionOnMainList =
+            currentPositionOnMainList =
                 savedInstanceState.getInt("currentPositionOnList", 0)
-            MainActivity.currentPositionToShowOnSmallList =
+            currentPositionToShowOnSmallList =
                 savedInstanceState.getInt("currentPositionToShow", 0)
 
-            if("booksListFragment".equals(savedInstanceState.getString("currentFragment"))){
-                savedInstanceState.getString("booksTitle")?.let { addBookListFragment(it) }
-            }else if("booksDetailsFragment".equals(savedInstanceState.getString("currentFragment"))){
+            if("booksListFragment" == savedInstanceState.getString("currentFragment")){
+                savedInstanceState.getString("booksTitle")?.let {}
+            }else if("booksDetailsFragment" == savedInstanceState.getString("currentFragment")){
                 addBookDetailsFragment(savedInstanceState.getSerializable("singleBook") as Items)
             }
         }else{
@@ -38,15 +38,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun addBookListFragment() {
-        supportFragmentManager.beginTransaction()
-            .replace(
-                R.id.container_fragment,
-                BooksListFragment.newInstance()
-            )
-            .commit()
-    }
-
-    private fun addBookListFragment(searchingValue : String) {
         supportFragmentManager.beginTransaction()
             .replace(
                 R.id.container_fragment,
@@ -67,7 +58,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onBackPressed() {
         val fm: FragmentManager = supportFragmentManager
-        if (fm.getBackStackEntryCount() > 0) {
+        if (fm.backStackEntryCount > 0) {
             fm.popBackStack()
         } else {
             super.onBackPressed()

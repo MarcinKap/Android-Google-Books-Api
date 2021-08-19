@@ -15,8 +15,8 @@ import androidx.cardview.widget.CardView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.updateLayoutParams
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
 import com.bumptech.glide.Glide
-import com.bumptech.glide.RequestManager
 import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.RequestListener
@@ -25,33 +25,29 @@ import com.example.androidgooglebooksapi.MainActivity
 import com.example.androidgooglebooksapi.views.fragments.BookPagerFragment
 import java.util.concurrent.atomic.AtomicBoolean
 
-class BookListAdapter(var booksList: List<Items>, fragment: Fragment) :
+class BookListAdapter(private var itemsList: List<Items>, private val fragment: Fragment) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
-    private val fragment = fragment
-    private val VIEW_TYPE_SECTION: Int = 0
-    private val VIEW_TYPE_ITEM = 1
-    private var freeBooksList: ArrayList<Items> = ArrayList()
-    private var paidBooksList: ArrayList<Items> = ArrayList()
+    private val viewTypeSection: Int = 0
+    private var freeBooksListSize: Int = 0
+    private var paidBooksListSize: Int = 0
     private var newItemsList: ArrayList<Items> = ArrayList()
     private var viewHolderListener: ViewHolderListener? = null
 
-    init{
-        booksList.forEach {
-            if ("FREE".equals(it.saleInfo.saleability)) {
-                freeBooksList.add(it)
-            } else {
-                paidBooksList.add(it)
-            }
-        }
-        newItemsList.addAll(freeBooksList)
-        newItemsList.addAll(paidBooksList)
+    init {
+        //  There is not only Free/ Paid type of saleability thats why i can not use sort, filter
+        //  Dont change position of this code
+        newItemsList.addAll(itemsList.filter { it.saleInfo.saleability == "FREE" })
+        freeBooksListSize = newItemsList.size
+        newItemsList.addAll(itemsList.filter { it.saleInfo.saleability  != "FREE" })
+        paidBooksListSize = newItemsList.size - freeBooksListSize
     }
 
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
 
-        viewHolderListener = ViewHolderListenerImpl(fragment, newItemsList, freeBooksList, paidBooksList)
+        viewHolderListener =
+            ViewHolderListenerImpl(fragment, newItemsList)
 
         val inflater = LayoutInflater.from(parent.context)
 
@@ -62,24 +58,35 @@ class BookListAdapter(var booksList: List<Items>, fragment: Fragment) :
             val view: View = inflater.inflate(R.layout.adapter_single_book, parent, false)
             return SingleBookViewHolder(
                 view,
-                Glide.with(fragment),
                 viewHolderListener!!
             )
         }
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        //Now check wich ViewHolder should be run
-        if (holder.itemViewType == VIEW_TYPE_SECTION) {
-            if (position < freeBooksList.size + 1 && freeBooksList.size != 0) {
-                fragment.context?.resources?.let { (holder as BookSectionViewHolder).bind(it.getString(R.string.free_book_list)) }
+        //Now check which ViewHolder should be run
+        if (holder.itemViewType == viewTypeSection) {
+            if (position < freeBooksListSize + 1 && freeBooksListSize != 0) {
+                fragment.context?.resources?.let {
+                    (holder as BookSectionViewHolder).bind(
+                        it.getString(
+                            R.string.free_book_list
+                        )
+                    )
+                }
             } else {
-                fragment.context?.resources?.let { (holder as BookSectionViewHolder).bind(it.getString(R.string.paid_book_list)) }
+                fragment.context?.resources?.let {
+                    (holder as BookSectionViewHolder).bind(
+                        it.getString(
+                            R.string.paid_book_list
+                        )
+                    )
+                }
             }
         } else {
-            var singleBook = getSingleBook(position)
+            val singleBook = getSingleBook(position)
             if (singleBook == null) {
-                return;
+                return
             }
             (holder as SingleBookViewHolder).bind(
                 singleBook
@@ -88,84 +95,76 @@ class BookListAdapter(var booksList: List<Items>, fragment: Fragment) :
     }
 
     private fun getSingleBook(position: Int): Items {
-        if (position < freeBooksList.size + 1 && freeBooksList.size != 0) {
-            return freeBooksList[position - 1]
-        } else if (position >= freeBooksList.size + 1 && freeBooksList.size != 0) {
-            return paidBooksList[position - freeBooksList.size - 2]
+        if (position < freeBooksListSize + 1 && freeBooksListSize != 0) {
+            return newItemsList[position - 1]
+        } else if (position >= freeBooksListSize + 1 && freeBooksListSize != 0) {
+            return newItemsList[position  - 2]
         } else {
-            return paidBooksList[position - 1]
+            return newItemsList[position - 1]
         }
     }
 
     override fun getItemCount(): Int {
-        if (freeBooksList.size == 0 || paidBooksList.size == 0) {
-            return booksList.size + 1
+        if (freeBooksListSize== 0 || paidBooksListSize == 0) {
+            return itemsList.size + 1
         } else {
-            return booksList.size + 2
+            return itemsList.size + 2
         }
     }
 
 
     //Definition of view type (Section or Item)
     override fun getItemViewType(position: Int): Int {
-        if (position == 0 || (freeBooksList.size != 0 && position == freeBooksList.size + 1)) {
-            return 0; //Section
+        if (position == 0 || (freeBooksListSize != 0 && position == freeBooksListSize + 1)) {
+            return 0 //Section
         } else {
-            return 1; //Item
+            return 1 //Item
         }
-//        return super.getItemViewType(position)
     }
 
     class BookSectionViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         //create section book list adapter
         fun bind(title: String) {
-            var sectionTitle: TextView = itemView.findViewById(R.id.sectionTitle)
-            sectionTitle.setText(title)
+            val sectionTitle: TextView = itemView.findViewById(R.id.sectionTitle)
+            sectionTitle.text = title
         }
     }
 
 
     class SingleBookViewHolder(
         itemView: View,
-        requestManager: RequestManager,
-        viewHolderListener: ViewHolderListener
+        private var viewHolderListener: ViewHolderListener
     ) : RecyclerView.ViewHolder(itemView) {
 
-        private lateinit var bookImage: ImageView
-        private lateinit var bookTitle: TextView
-        private lateinit var bookContainer: CardView
-        private lateinit var viewHolderListener: ViewHolderListener
+        private var bookImage: ImageView = itemView.findViewById(R.id.image_book)
+        private var bookTitle: TextView = itemView.findViewById(R.id.book_title_text_view)
+        private var bookContainer: CardView = itemView.findViewById(R.id.single_book)
 
-        init {
-            bookImage = itemView.findViewById(R.id.image_book)
-            bookTitle = itemView.findViewById(R.id.book_title_text_view)
-            bookContainer = itemView.findViewById(R.id.single_book)
-            this.viewHolderListener = viewHolderListener
-        }
 
         //create single book adapter
         fun bind(
             singleBook: Items
         ) {
 //            bookImage.transitionName = java.lang.String.valueOf(singleBook)
-            bookTitle.setText(singleBook.volumeInfo.title)
-            bookTitle.transitionName = singleBook.etag+"title"
+            bookTitle.text = singleBook.volumeInfo.title
+            bookTitle.transitionName = singleBook.etag + "title"
             bookImage.transitionName = singleBook.etag
             setImage(singleBook)
 
-            bookContainer.setOnClickListener(object : View.OnClickListener {
-                override fun onClick(view: View?) {
-                    viewHolderListener.onItemClicked(view, getAdapterPosition())
-                }
-            })
+            bookContainer.setOnClickListener { view ->
+                viewHolderListener.onItemClicked(
+                    view,
+                    adapterPosition
+                )
+            }
         }
 
-        fun setImage(singleBook: Items) {
+        private fun setImage(singleBook: Items) {
             //Download image
             if (singleBook.volumeInfo != null && singleBook.volumeInfo.imageLinks != null && singleBook.volumeInfo.imageLinks.thumbnail != null) {
                 bookImage.setImageDrawable(null)
-                bookImage.layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
-                bookImage.layoutParams.width = ViewGroup.LayoutParams.MATCH_PARENT;
+                bookImage.layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT
+                bookImage.layoutParams.width = ViewGroup.LayoutParams.MATCH_PARENT
                 Glide
                     .with(itemView)
                     .load(singleBook.volumeInfo.imageLinks.thumbnail)
@@ -194,12 +193,12 @@ class BookListAdapter(var booksList: List<Items>, fragment: Fragment) :
                             return false
                         }
                     })
-                    .into(bookImage);
+                    .into(bookImage)
             } else {
                 bookImage.setImageDrawable(null)
                 bookImage.setBackgroundResource(R.drawable.no_photo)
-                bookImage.layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
-                bookImage.layoutParams.width = ViewGroup.LayoutParams.WRAP_CONTENT;
+                bookImage.layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT
+                bookImage.layoutParams.width = ViewGroup.LayoutParams.WRAP_CONTENT
                 bookImage.updateLayoutParams<ConstraintLayout.LayoutParams> { verticalBias = 0.5f }
             }
         }
@@ -223,16 +222,10 @@ class BookListAdapter(var booksList: List<Items>, fragment: Fragment) :
      */
     private class ViewHolderListenerImpl(
         private val fragment: Fragment,
-        private val newItemsList: ArrayList<Items>,
-        private val freeItemList: ArrayList<Items>,
-        private val paidBookList: ArrayList<Items>
+        private val newItemsList: ArrayList<Items>
     ) : ViewHolderListener {
 
-        private val enterTransitionStarted: AtomicBoolean
-
-        init {
-            enterTransitionStarted = AtomicBoolean()
-        }
+        private val enterTransitionStarted: AtomicBoolean = AtomicBoolean()
 
         override fun onLoadCompleted(view: ImageView?, adapterPosition: Int) {
 
@@ -254,17 +247,19 @@ class BookListAdapter(var booksList: List<Items>, fragment: Fragment) :
             // instead of fading out with the rest to prevent an overlapping animation of fade and move).
             (fragment.exitTransition as TransitionSet?)!!.excludeTarget(view, true)
 
-            val bookImage :ImageView = view!!.findViewById(R.id.image_book)
-            val bookTitle :TextView = view!!.findViewById(R.id.book_title_text_view)
+            val bookImage: ImageView = view!!.findViewById(R.id.image_book)
+            val bookTitle: TextView = view.findViewById(R.id.book_title_text_view)
 
-            (fragment.view?.context as AppCompatActivity).supportFragmentManager
+            val fragmentManager : FragmentManager = (fragment.view?.context as AppCompatActivity).supportFragmentManager
+
+            fragmentManager
                 .beginTransaction()
                 .setReorderingAllowed(true) // Optimize for shared element transition
                 .addSharedElement(bookImage, bookImage.transitionName)
                 .addSharedElement(bookTitle, bookTitle.transitionName)
                 .replace(
                     R.id.container_fragment,
-                    BookPagerFragment.newInstance(newItemsList, freeItemList, paidBookList)
+                    BookPagerFragment.newInstance(newItemsList)
                 )
                 .addToBackStack(null)
                 .commit()

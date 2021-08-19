@@ -38,7 +38,7 @@ import com.example.androidgooglebooksapi.views.viewModel.DataViewModel
 import kotlinx.android.synthetic.main.activity_main.*
 
 
-class BooksListFragment() : BaseFragment() {
+class BooksListFragment : BaseFragment() {
 
     private val viewModel: DataViewModel by activityViewModels()
 
@@ -110,9 +110,9 @@ class BooksListFragment() : BaseFragment() {
     }
 
 
-    fun setAdapter(editText: EditText) {
+    private fun setAdapter(editText: EditText) {
         var timer = Timer()
-        val DELAY: Long = 1000 // Milliseconds
+        val delay: Long = 1000 // Milliseconds
 
         editText.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
@@ -164,7 +164,7 @@ class BooksListFragment() : BaseFragment() {
                                     )
                             }
                         },
-                        DELAY
+                        delay
                     )
                 }
             }
@@ -202,7 +202,7 @@ class BooksListFragment() : BaseFragment() {
         return false
     }
 
-    fun setGridLayoutManagerInRecyclerView(recyclerView: RecyclerView) {
+    private fun setGridLayoutManagerInRecyclerView(recyclerView: RecyclerView) {
         var spanCount = 2
         if (context?.resources?.configuration?.orientation == Configuration.ORIENTATION_LANDSCAPE) {
             spanCount = 4
@@ -242,6 +242,7 @@ class BooksListFragment() : BaseFragment() {
             ) {
                 recyclerView.removeOnLayoutChangeListener(this)
 
+                println("pozycja: " + MainActivity.currentPositionOnMainList)
                 recyclerView.scrollToPosition(MainActivity.currentPositionOnMainList)
             }
         })
@@ -269,27 +270,21 @@ class BooksListFragment() : BaseFragment() {
 
 
                     // Map the first shared element name to the child ImageView.
-                 sharedElements.put(names[0], selectedViewHolder.itemView.findViewById(R.id.image_book) )
+                    sharedElements[names[0]] = selectedViewHolder.itemView.findViewById(R.id.image_book)
                 }
             })
     }
 
 
-    fun setFreeAndPaidBookListSize(itemsList: ArrayList<Items>) {
+    private fun setFreeAndPaidBookListSize(itemsList: ArrayList<Items>) {
         freeBookListSize = 0
         paidBookListSize = 0
         itemsList.forEach {
-            if ("FREE".equals(it.saleInfo.saleability)) {
+            if ("FREE" == it.saleInfo.saleability) {
                 freeBookListSize++
             } else {
                 paidBookListSize++
             }
         }
-    }
-
-
-    override fun onSaveInstanceState(outState: Bundle) {
-
-        super.onSaveInstanceState(outState)
     }
 }

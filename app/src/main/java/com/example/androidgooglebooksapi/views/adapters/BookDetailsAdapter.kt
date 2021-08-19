@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.androidgooglebooksapi.R
 import com.example.androidgooglebooksapi.models.bookDetails.AdditionalInformation
 
-class BookDetailsAdapter(var additionalInformationsList: ArrayList<AdditionalInformation>) :
+class BookDetailsAdapter(private var additionalInformationsList: ArrayList<AdditionalInformation>) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
@@ -17,7 +17,7 @@ class BookDetailsAdapter(var additionalInformationsList: ArrayList<AdditionalInf
         return (CustomViewHolder(view))
     }
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        val additionalInformation = additionalInformationsList.get(position)
+        val additionalInformation = additionalInformationsList[position]
         (holder as CustomViewHolder).bind(additionalInformation.title, additionalInformation.text)
     }
     override fun getItemCount(): Int {
@@ -28,10 +28,10 @@ class BookDetailsAdapter(var additionalInformationsList: ArrayList<AdditionalInf
         fun bind(title: String, text: String) {
             val additionalInformationTitle: TextView =
                 itemView.findViewById(R.id.additional_information_title)
-            additionalInformationTitle.setText(title)
+            additionalInformationTitle.text = title
             val additionalInformationText: TextView =
                 itemView.findViewById(R.id.additional_information_text)
-            additionalInformationText.setText(text)
+            additionalInformationText.text = text
         }
     }
 

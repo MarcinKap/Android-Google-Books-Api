@@ -5,10 +5,7 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.example.androidgooglebooksapi.models.bookList.Items
 import com.example.androidgooglebooksapi.views.fragments.BookDetailsFragment
 
-class BookPagerAdapter(fragment: Fragment, bookList : ArrayList<Items>) : FragmentStateAdapter(fragment) {
-
-    private val fragment = fragment
-    private val bookList = bookList
+class BookPagerAdapter(fragment: Fragment, private val bookList: ArrayList<Items>) : FragmentStateAdapter(fragment) {
 
 
     override fun getItemCount(): Int {

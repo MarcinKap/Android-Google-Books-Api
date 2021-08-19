@@ -1,6 +1,6 @@
 package com.example.androidgooglebooksapi.api
 
-import com.example.androidgooglebooksapi.util.Constans.Companion.BASE_URL
+import com.example.androidgooglebooksapi.util.Constans.Companion.baseUrl
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import retrofit2.Response
@@ -22,7 +22,7 @@ object RetrofitInstance {
         }
 
         Retrofit.Builder()
-            .baseUrl(BASE_URL)
+            .baseUrl(baseUrl)
             .client(httpClient.build())
             .addConverterFactory(GsonConverterFactory.create())
             .build()

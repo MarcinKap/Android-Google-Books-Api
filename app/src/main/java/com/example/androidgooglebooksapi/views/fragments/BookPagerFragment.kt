@@ -15,23 +15,24 @@ import com.example.androidgooglebooksapi.R
 import com.example.androidgooglebooksapi.models.bookList.Items
 import com.example.androidgooglebooksapi.views.BaseFragment
 import com.example.androidgooglebooksapi.views.adapters.BookPagerAdapter
+import android.app.Activity
+import android.view.inputmethod.InputMethodManager
+
 
 class BookPagerFragment : BaseFragment() {
-    private var viewPager: ViewPager2? = null
-    private lateinit var newItemsList: ArrayList<Items>
-    private lateinit var freeBookList: ArrayList<Items>
-    private lateinit var paidBookList: ArrayList<Items>
+
 
     companion object {
+        private var viewPager: ViewPager2? = null
+        private var freeItemsListSize: Int = 0
+        private var paidItemsListSize: Int = 0
+        private lateinit var itemsList: ArrayList<Items>
+
         fun newInstance(
-            newItemsList: ArrayList<Items>,
-            freeBookList: ArrayList<Items>,
-            paidBookList: ArrayList<Items>
+            itemsList: ArrayList<Items>
         ): BookPagerFragment {
             val args = Bundle()
-            args.putSerializable("newItemList", newItemsList)
-            args.putSerializable("freeBookList", freeBookList)
-            args.putSerializable("paidBookList", paidBookList)
+            args.putSerializable("newItemList", itemsList)
             val fragment = BookPagerFragment()
             fragment.arguments = args
             return fragment
@@ -42,36 +43,37 @@ class BookPagerFragment : BaseFragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        newItemsList = arguments?.get("newItemList") as ArrayList<Items>
-        freeBookList = arguments?.get("freeBookList") as ArrayList<Items>
-        paidBookList = arguments?.get("paidBookList") as ArrayList<Items>
+        itemsList = arguments?.get("newItemList") as ArrayList<Items>
+        freeItemsListSize = itemsList.filter { x -> x.saleInfo.saleability == "FREE" }.size
+        paidItemsListSize = itemsList.size - freeItemsListSize
 
         viewPager = inflater.inflate(R.layout.fragment_book_pager, container, false) as ViewPager2?
-        viewPager?.adapter = BookPagerAdapter(this, newItemsList)
-
+        viewPager?.adapter = BookPagerAdapter(this, itemsList)
+        activity?.let { hideKeyboard(it) }
         // Set the current position and add a listener that will update the selection coordinator when
         // paging the images.
-        MainActivity.currentPositionToShowOnSmallList =
-            getPositionOnSmallList(
-                MainActivity.currentPositionOnMainList,
-                freeBookList,
-                paidBookList
-            )
+        MainActivity.currentPositionToShowOnSmallList = getPositionOnSmallList()
 
         viewPager!!.setCurrentItem(MainActivity.currentPositionToShowOnSmallList, false)
         viewPager?.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
-
-                MainActivity.currentPositionToShowOnSmallList = position
-                MainActivity.currentPositionOnMainList = getPositionOnMainList(
-                    MainActivity.currentPositionToShowOnSmallList,
-                    freeBookList,
-                    paidBookList
-                )
-
-
+//                MainActivity.currentPositionToShowOnSmallList = position
+//                MainActivity.currentPositionOnMainList = getPositionOnMainList()
 
                 super.onPageSelected(position)
+            }
+
+            override fun onPageScrolled(
+                position: Int,
+                positionOffset: Float,
+                positionOffsetPixels: Int
+            ) {
+                MainActivity.currentPositionToShowOnSmallList = position
+                MainActivity.currentPositionOnMainList = getPositionOnMainList()
+
+                prepareExitSharedElementTransition(position)
+
+                super.onPageScrolled(position, positionOffset, positionOffsetPixels)
             }
         })
         prepareEnterSharedElementTransition()
@@ -83,29 +85,23 @@ class BookPagerFragment : BaseFragment() {
         return viewPager
     }
 
-    fun getPositionOnSmallList(
-        position: Int,
-        freeBooksList: ArrayList<Items>,
-        paidBookList: ArrayList<Items>
-    ): Int {
-        if (position <= freeBooksList.size && freeBooksList.size != 0) {
+    private fun getPositionOnSmallList(): Int {
+        val position: Int = MainActivity.currentPositionOnMainList
+        if (position <= freeItemsListSize && freeItemsListSize != 0) {
             return position - 1
-        } else if (position >= freeBooksList.size + 1 && freeBooksList.size != 0) {
+        } else if (position >= freeItemsListSize + 1 && freeItemsListSize != 0) {
             return position - 2
         } else {
             return position - 1
         }
     }
 
-    fun getPositionOnMainList(
-        positionOnSmallList: Int,
-        freeBooksList: ArrayList<Items>,
-        paidBookList: ArrayList<Items>
-    ): Int {
+    private fun getPositionOnMainList(): Int {
+        val positionOnSmallList: Int = MainActivity.currentPositionToShowOnSmallList
 
-        if (positionOnSmallList < freeBooksList.size && freeBooksList.size != 0) {
+        if (positionOnSmallList < freeItemsListSize && freeItemsListSize != 0) {
             return positionOnSmallList + 1
-        } else if (positionOnSmallList >= freeBooksList.size && freeBooksList.size != 0) {
+        } else if (positionOnSmallList >= freeItemsListSize && freeItemsListSize != 0) {
             return positionOnSmallList + 2
         } else {
             return positionOnSmallList + 1
@@ -143,8 +139,57 @@ class BookPagerFragment : BaseFragment() {
                         return;
                     }
 
-                    val image : ImageView = view2.findViewById(R.id.image_book)
+                    val image: ImageView = view2.findViewById(R.id.image_book)
                     sharedElements[names[0]] = image
+                }
+            })
+    }
+
+    fun hideKeyboard(activity: Activity) {
+        val imm: InputMethodManager =
+            activity.getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
+        //Find the currently focused view, so we can grab the correct window token from it.
+        var view = activity.currentFocus
+        //If no view currently has focus, create a new one, just so we can grab a window token from it
+        if (view == null) {
+            view = View(activity)
+        }
+        imm.hideSoftInputFromWindow(view.windowToken, 0)
+    }
+
+
+
+    private fun prepareExitSharedElementTransition(position : Int) {
+        val transition = TransitionInflater
+            .from(context)
+            .inflateTransition(R.transition.image_shared_element_transition)
+
+        sharedElementReturnTransition = transition
+
+        // A similar mapping is set at the GridFragment with a setExitSharedElementCallback.
+        setExitSharedElementCallback(
+            object : SharedElementCallback() {
+                override fun onMapSharedElements(
+                    names: List<String>,
+                    sharedElements: MutableMap<String, View>
+                ) {
+                    // Locate the image view at the primary fragment (the ImageFragment that is currently
+                    // visible). To locate the fragment, call instantiateItem with the selection position.
+                    // At this stage, the method will simply return the fragment at the position and will
+                    // not create a new one.
+
+                    val currentFragment: Fragment? =
+                        (view?.context as AppCompatActivity).supportFragmentManager.findFragmentById(
+                            MainActivity.currentPositionOnMainList
+                        )
+                    val view2: View? = currentFragment?.view
+                    if (view2 == null) {
+                        return;
+                    }
+
+                    val image: ImageView = view2.findViewById(R.id.image_book)
+                    image.transitionName = itemsList[position].etag
+                    sharedElements[image.transitionName] = image
                 }
             })
     }
