@@ -97,10 +97,13 @@ class BooksListFragment : BaseFragment() {
 
             (view.parent as? ViewGroup)?.doOnPreDraw {
                 startPostponedEnterTransition()
-//                if (MainActivity.currentPositionOnMainList == 0) {
-//                    recyclerView.scheduleLayoutAnimation()
-//                }
+
             }
+            if (MainActivity.currentPositionOnMainList == 0) {
+                recyclerView.scheduleLayoutAnimation()
+            }
+
+
         }
         if (recyclerView.adapter != null) {
 //            prepareTransitions()
