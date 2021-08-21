@@ -23,31 +23,29 @@ import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
 import com.example.androidgooglebooksapi.MainActivity
 import com.example.androidgooglebooksapi.views.fragments.BookPagerFragment
+import java.util.*
 import java.util.concurrent.atomic.AtomicBoolean
+import kotlin.collections.ArrayList
 
-class BookListAdapter(private var itemsList: List<Items>, private val fragment: Fragment) :
+class BookListAdapter(private var itemsList: ArrayList<Items>, private val fragment: Fragment) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private val viewTypeSection: Int = 0
     private var freeBooksListSize: Int = 0
     private var paidBooksListSize: Int = 0
-    private var newItemsList: ArrayList<Items> = ArrayList()
     private var viewHolderListener: ViewHolderListener? = null
 
     init {
-        //  There is not only Free/ Paid type of saleability thats why i can not use sort, filter
-        //  Dont change position of this code
-        newItemsList.addAll(itemsList.filter { it.saleInfo.saleability == "FREE" })
-        freeBooksListSize = newItemsList.size
-        newItemsList.addAll(itemsList.filter { it.saleInfo.saleability  != "FREE" })
-        paidBooksListSize = newItemsList.size - freeBooksListSize
+        //interface Comaparable in Items class
+        Collections.sort(itemsList)
+        freeBooksListSize = itemsList.filter { it.saleInfo.saleability == "FREE" }.size
+        paidBooksListSize = itemsList.size - freeBooksListSize
     }
-
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
 
         viewHolderListener =
-            ViewHolderListenerImpl(fragment, newItemsList)
+            ViewHolderListenerImpl(fragment, itemsList)
 
         val inflater = LayoutInflater.from(parent.context)
 
@@ -96,11 +94,11 @@ class BookListAdapter(private var itemsList: List<Items>, private val fragment: 
 
     private fun getSingleBook(position: Int): Items {
         if (position < freeBooksListSize + 1 && freeBooksListSize != 0) {
-            return newItemsList[position - 1]
+            return itemsList[position - 1]
         } else if (position >= freeBooksListSize + 1 && freeBooksListSize != 0) {
-            return newItemsList[position  - 2]
+            return itemsList[position  - 2]
         } else {
-            return newItemsList[position - 1]
+            return itemsList[position - 1]
         }
     }
 

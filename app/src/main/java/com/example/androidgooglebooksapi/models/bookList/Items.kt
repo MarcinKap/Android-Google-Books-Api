@@ -12,4 +12,11 @@ data class Items (
 	val volumeInfo : VolumeInfo,
 	val saleInfo : SaleInfo,
 	val accessInfo : AccessInfo
-) : Serializable
+) : Serializable, Comparable<Items> {
+	override fun compareTo(other: Items): Int {
+		if(saleInfo.saleability == "FREE"){
+			return -1;
+		}
+		return 0;
+	}
+}
