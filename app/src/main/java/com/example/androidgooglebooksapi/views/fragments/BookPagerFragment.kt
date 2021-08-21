@@ -20,8 +20,7 @@ import android.view.inputmethod.InputMethodManager
 
 
 class BookPagerFragment : BaseFragment() {
-
-
+    
     companion object {
         private var viewPager: ViewPager2? = null
         private var freeItemsListSize: Int = 0
